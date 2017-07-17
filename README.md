@@ -7,9 +7,10 @@ This project uses the NAIF supplied spice data and exposes it as a RESTful servi
 - flask
 - numpy
 
-Optionally, the `pvl` library is being used to read PVL labels in the example ipython notebooks.
+Optionally, to run the example ipython notebooks.
 
 - pvl
+- requests
 
 ## Necessary Changes
 
