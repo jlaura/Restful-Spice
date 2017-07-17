@@ -1,4 +1,4 @@
-# RESTful Spice
+# RESTful Spice a.k.a. Pfeffernusse
 
 
 This project uses the NAIF supplied spice data and exposes it as a RESTful service.  This is a **prototype** proof of concept with no documentation.  The module depends on:
