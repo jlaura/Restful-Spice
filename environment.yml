@@ -1,0 +1,8 @@
+name: pfeffernusse
+channels:
+    - andrewannex # For Spiceypy
+    - conda-forge
+dependencies:
+    - spiceypy
+    - Flask
+    - dateutil

@@ -77,4 +77,4 @@ if __name__ == '__main__':
     app.meta_kernels = meta_kernels
     app.json_encoder = NumpyAwareJSONEncoder
     app.response_failure = {'success':False, 'error_msg':""}
-    app.run(debug=True)
+    app.run(host="0.0.0.0", debug=True)
