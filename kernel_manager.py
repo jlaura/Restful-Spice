@@ -3,9 +3,7 @@ import glob
 import os
 import re
 
-
-def create_kernel_listing():
-    spice_root = '/data/spice/mess-e_v_h-spice-6-v1.0/messsp_1000/'
+def create_kernel_listing(spice_root):
     meta_root =  os.path.join(spice_root, 'extras/mk')
 
     files = glob.glob(meta_root + '/*.tm')
@@ -22,5 +20,4 @@ def create_kernel_listing():
         sorted_meta = sorted(v, key=lambda x: re.search('v[0-9]+', x).group(), reverse=True)
         meta[k] = [os.path.join(meta_root, i) for i in sorted_meta]
 
-    meta_kernels['mercury']['messenger'] = meta
-    return meta_kernels
+    return meta
