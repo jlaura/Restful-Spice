@@ -1,4 +1,6 @@
-import json
+import datetime
+import decimal
+from json import JSONEncoder
 import numpy as np
 
 def distort_focal_length(coeffs, t):
@@ -23,12 +25,17 @@ def distort_focal_length(coeffs, t):
     return focal_length
 
 
-class NumpyAwareJSONEncoder(json.JSONEncoder):
+class CustomJSONEncoder(JSONEncoder):
+
     def default(self, obj):
-        if isinstance(obj, np.ndarray) and obj.ndim == 1:
+        if isinstance(obj, datetime.date):
+            return obj.isoformat()
+        elif isinstance(obj, np.ndarray) and obj.ndim == 1:
             lobj = obj.tolist()
             if len(lobj) == 1:
                 return lobj[0]
             else:
                 return lobj
-        return json.JSONEncoder.default(self, obj)
+
+
+        return JSONEncoder.default(self, obj)

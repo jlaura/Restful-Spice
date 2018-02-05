@@ -10,8 +10,11 @@ import glob
 import os
 import re
 
+from models import MetaKernels
+
 mission_dir_to_human_name = {'messsp_1000':'MESSENGER',
-                             'mrosp_1000':'Mars_Reconnaissance_Oribter'}
+                             'mrosp_1000':'Mars_Reconnaissance_Oribter',
+                             'cosp_1000':'Cassini'}
 
 def find_mk(spice_root):
     meta_root =  os.path.join(spice_root, 'extras/mk')
@@ -38,7 +41,8 @@ def find_mk(spice_root):
 root = '/data/spice'
 opj = os.path.join
 spice_roots = [opj(root, 'mess-e_v_h-spice-6-v1.0/messsp_1000/'),
-               opj(root, 'mro-m-spice-6-v1.0/mrosp_1000/')]
+               opj(root, 'mro-m-spice-6-v1.0/mrosp_1000/'),
+               opj(root, 'co-s_j_e_v-spice-6-v1.0/cosp_1000/')]
 
 data = {}
 for data_dir in spice_roots:
@@ -46,19 +50,6 @@ for data_dir in spice_roots:
     data[key] = find_mk(data_dir)
 
 Base = declarative_base()
-
-class MetaKernels(Base):
-    __tablename__='metakernels'
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    newest = Column(Boolean)
-    path = Column(String)
-    year = Column(Date)
-    mission = Column(String)
-
-    def __repr__(self):
-        return "id: {}, name:{}, newest:{}, path:{}, year:{}, mission: {}".format(self.id,
-                self.name, self.newest, self.path, self.year, self.mission)
 
 engine = create_engine('sqlite:///mk.db')
 
@@ -84,4 +75,3 @@ for mission, mks in data.items():
             rows.append(row)
 session.add_all(rows)
 session.commit()
-
