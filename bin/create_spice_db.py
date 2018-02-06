@@ -1,4 +1,3 @@
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, Boolean, String, Date
 from sqlalchemy import create_engine
 
@@ -10,11 +9,25 @@ import glob
 import os
 import re
 
-from models import MetaKernels
+# Cause I'm lazy
+opj = os.path.join
 
-mission_dir_to_human_name = {'messsp_1000':'MESSENGER',
-                             'mrosp_1000':'Mars_Reconnaissance_Oribter',
-                             'cosp_1000':'Cassini'}
+from pfeffernusse.models import Base, Kernels, Missions
+
+#TODO: Refactor this out via argparse or statically check for all PDS missions and allow additional
+mission_dir_to_human_name = {'messsp_1000':'messenger',
+                             'mrosp_1000':'mars_reconnaissance_orbiter',
+                             'cosp_1000':'cassini'}
+root = '/data/spice'
+
+spice_roots = [os.path.join(root, 'mess-e_v_h-spice-6-v1.0/messsp_1000/'),
+               os.path.join(root, 'mro-m-spice-6-v1.0/mrosp_1000/'),
+               os.path.join(root, 'co-s_j_e_v-spice-6-v1.0/cosp_1000/')]
+
+
+engine = create_engine('sqlite:///mk.db')
+Base.metadata.create_all(engine)
+session = sessionmaker(bind=engine)()
 
 def find_mk(spice_root):
     meta_root =  os.path.join(spice_root, 'extras/mk')
@@ -38,31 +51,21 @@ def find_mk(spice_root):
 
     return meta
 
-root = '/data/spice'
-opj = os.path.join
-spice_roots = [opj(root, 'mess-e_v_h-spice-6-v1.0/messsp_1000/'),
-               opj(root, 'mro-m-spice-6-v1.0/mrosp_1000/'),
-               opj(root, 'co-s_j_e_v-spice-6-v1.0/cosp_1000/')]
+def find_kernels(spice_root):
+    #TODO: Load all kernels into the database with .lbl files as JSON metadata
+    data_root = os.path.join(spice_root, 'data')
+
 
 data = {}
 for data_dir in spice_roots:
     key = os.path.basename(os.path.normpath(data_dir))
     data[key] = find_mk(data_dir)
 
-Base = declarative_base()
-
-engine = create_engine('sqlite:///mk.db')
-
-# Create the DB
-Base.metadata.create_all(engine)
-
-# Connect the session
-Session = sessionmaker(bind=engine)
-session = Session()
-
-rows = []
 for mission, mks in data.items():
+    metakernels = []
     mission = mission_dir_to_human_name[mission]
+    mission = Missions(name=mission)
+
     for year, mk in mks.items():
         year = datetime.date(year, 1,1)
         for i, m in enumerate(mk):
@@ -70,8 +73,9 @@ for mission, mks in data.items():
             if i == 0:
                 newest=True
             name = os.path.basename(os.path.normpath(m))
-            row = MetaKernels(mission=mission.lower(), name=name,
+            metakernel = Kernels(mission=mission, name=name,
                               year=year, newest=newest,path=m)
-            rows.append(row)
-session.add_all(rows)
+            metakernels.append(metakernel)
+
+        session.add_all(metakernels)
 session.commit()

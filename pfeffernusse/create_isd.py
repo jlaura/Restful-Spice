@@ -5,7 +5,7 @@ import glob
 import numpy as np
 import spiceypy as spice
 
-from utils import distort_focal_length
+from pfeffernusse.utils import distort_focal_length
 import json
 
 class NumpyEncoder(json.JSONEncoder):
@@ -118,6 +118,17 @@ def isd_from_json(data, meta):
         isd['starting_detector_line'] = spice.gdpool('INS{}_FPUBIN_START_LINE'.format(ikid), 0, 1)
     except:
         isd['starting_detector_line'] = 0
+
+    # Get temperature from SPICE and adjust focal length
+    if 'focal_plane_temperature' in data.keys():
+        try:  # TODO: Remove once WAC temperature dependent is working
+            temp_coeffs = spice.gdpool('INS-{}_FL_TEMP_COEFFS'.format(ikid), 0, 6)
+            temp = data['focal_plane_temperature']
+            isd['focal_length'] = distort_focal_length(temp_coeffs, temp)
+        except:
+            isd['focal_length'] = spice.gdpool('INS-{}_FOCAL_LENGTH'.format(ikid), 0, 1)
+    else:
+        isd['focal_length'] = spice.gdpool('INS-{}_FOCAL_LENGTH'.format(ikid), 0, 1)
 
     # Get the radii from SPICE
     rad = spice.bodvrd(isd['target_name'], 'RADII', 3)
