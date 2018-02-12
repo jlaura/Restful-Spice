@@ -9,21 +9,18 @@ import glob
 import os
 import re
 
-# Cause I'm lazy
-opj = os.path.join
-
 from pfeffernusse.models import Base, Kernels, Missions
+
+ROOT = '/data/spice'
 
 #TODO: Refactor this out via argparse or statically check for all PDS missions and allow additional
 mission_dir_to_human_name = {'messsp_1000':'messenger',
                              'mrosp_1000':'mars_reconnaissance_orbiter',
                              'cosp_1000':'cassini'}
-root = '/data/spice'
 
-spice_roots = [os.path.join(root, 'mess-e_v_h-spice-6-v1.0/messsp_1000/'),
-               os.path.join(root, 'mro-m-spice-6-v1.0/mrosp_1000/'),
-               os.path.join(root, 'co-s_j_e_v-spice-6-v1.0/cosp_1000/')]
-
+spice_roots = [os.path.join(ROOT, 'mess-e_v_h-spice-6-v1.0/messsp_1000/'),
+               os.path.join(ROOT, 'mro-m-spice-6-v1.0/mrosp_1000/'),
+               os.path.join(ROOT, 'co-s_j_e_v-spice-6-v1.0/cosp_1000/')]
 
 engine = create_engine('sqlite:///mk.db')
 Base.metadata.create_all(engine)

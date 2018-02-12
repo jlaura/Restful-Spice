@@ -40,7 +40,7 @@ def available_kernels(mission):
     return jsonify(resp)
 
 @api.route('/1.0/missions/<mission>/kernels')
-def available_kernels(mission):
+def available_kernels_by_mission(mission):
     resp = {'success':True, 'data':{}}
     data = resp['data']
     mission = mission.lower()
